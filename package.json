@@ -1,0 +1,35 @@
+{
+  "name": "five-minutes-demo",
+  "description": "Explain the basics of fp-ts in five minutes.",
+  "repository": "https://github.com/typescript-fun/five-minutes-demo.git",
+  "author": "Daniel Steigerwald <daniel@steigerwald.cz>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start",
+    "deps": "rimraf 'yarn.lock' 'node_modules' && yarn",
+    "lint": "eslint '**/*.{ts,tsx}'",
+    "tsc": "tsc",
+    "test": "yarn lint && yarn tsc"
+  },
+  "dependencies": {
+    "next": "^9.1.4",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.13",
+    "@typescript-eslint/eslint-plugin": "^2.9.0",
+    "@typescript-eslint/parser": "^2.9.0",
+    "eslint": "^6.7.1",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-react": "^7.17.0",
+    "eslint-plugin-react-hooks": "^2.3.0",
+    "prettier": "^1.19.1",
+    "rimraf": "^3.0.0",
+    "typescript": "^3.7.2"
+  }
+}
