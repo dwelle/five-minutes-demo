@@ -3,8 +3,6 @@ import { NonEmptyString } from 'io-ts-types/lib/NonEmptyString';
 import { option } from 'io-ts-types/lib/option';
 import isEmail from 'validator/lib/isEmail';
 import isMobilePhone from 'validator/lib/isMobilePhone';
-import { some } from 'fp-ts/lib/Option';
-import { fold } from 'fp-ts/lib/Either';
 
 // io-ts is a trojan; come for the codec, stay for the Either
 // https://twitter.com/GiulioCanti/status/1197459999276056576
@@ -209,20 +207,26 @@ export type Phone = t.TypeOf<typeof Phone>;
 // OK, we have all custom types we need. Now we can create SignUpForm type.
 // Functional programming is all about composition.
 
+// SignUpForm
 export const SignUpForm = t.type({
   company: String50,
   email: Email,
   password: Password,
+  // See how to use option instead of Elvis (?) operator.
   phone: option(Phone),
 });
-
-console.log(
-  SignUpForm.decode({
-    company: 'asdfasdfasdf',
-    email: 'a@s.com',
-    password: 'sdfgsdfg',
-    phone: some('775326683'),
-  }),
-);
-
 export type SignUpForm = t.TypeOf<typeof SignUpForm>;
+
+// Great, we can validate a form values:
+// console.log(
+//   SignUpForm.decode({
+//     company: 'asdfasdfasdf',
+//     email: 'a@s.com',
+//     password: 'sdfgsdfg',
+//     phone: some('775326683'),
+//   }),
+// );
+
+// But wait, how to get a type for form initial values? Our form fields know
+// nothing about branded types. Do we have to write it? No.
+export type SignUpFormOutput = t.OutputOf<typeof SignUpForm>;

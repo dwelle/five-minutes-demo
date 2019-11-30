@@ -11,44 +11,21 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/core';
-import React from 'react';
+import { none } from 'fp-ts/lib/Option';
+import React, { useState } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { SignUpForm } from '../types';
+import { SignUpFormOutput } from '../types';
 
-// console.log(SignUpForm.decode({ userId: 1, name: 1 }));
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const a = SignUpForm;
-
-// interface SignUpForm {
-//   company: string;
-//   email: string;
-//   password: string;
-//   phone: string;
-// }
-
-// const initialState: SignUpForm = {
-//   company: '',
-//   email: '',
-//   password: '',
-//   phone: '',
-// };
-
-/**
- * This little form helper is all we need.
- */
-// const useField = <S extends {}>(
-//   // name muze bejt jen dle state
-//   name: string,
-//   [state, setState]: [S, React.Dispatch<React.SetStateAction<S>>],
-// ) => {
-//   // vrati value, name? proc ne, onChange, ref
-//   // const handleFoo = useCallback<FormEventHandler>(event => {
-//   //   console.log(event);
-//   // }, []);
-// };
+const initialState: SignUpFormOutput = {
+  company: '',
+  email: '',
+  password: '',
+  phone: none,
+};
 
 const Home = () => {
-  // const formState = useState(initialState);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const formState = useState(initialState);
   // TODO: useForm
   // const [] = useForm(formState)
 
