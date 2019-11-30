@@ -1,22 +1,60 @@
 import {
   Box,
+  Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
+  Icon,
   Input,
-  Text,
-  Stack,
   InputGroup,
   InputLeftElement,
-  Icon,
-  Button,
-  FormErrorMessage,
+  Stack,
+  Text,
 } from '@chakra-ui/core';
 import React from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { SignUpForm } from '../types';
+
+// console.log(SignUpForm.decode({ userId: 1, name: 1 }));
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const a = SignUpForm;
+
+// interface SignUpForm {
+//   company: string;
+//   email: string;
+//   password: string;
+//   phone: string;
+// }
+
+// const initialState: SignUpForm = {
+//   company: '',
+//   email: '',
+//   password: '',
+//   phone: '',
+// };
+
+/**
+ * This little form helper is all we need.
+ */
+// const useField = <S extends {}>(
+//   // name muze bejt jen dle state
+//   name: string,
+//   [state, setState]: [S, React.Dispatch<React.SetStateAction<S>>],
+// ) => {
+//   // vrati value, name? proc ne, onChange, ref
+//   // const handleFoo = useCallback<FormEventHandler>(event => {
+//   //   console.log(event);
+//   // }, []);
+// };
 
 const Home = () => {
+  // const formState = useState(initialState);
+  // TODO: useForm
+  // const [] = useForm(formState)
+
   return (
-    <Box m={4}>
-      <Text fontSize="lg">Sign Up</Text>
+    <Box m={8}>
+      <Text fontSize="xl">Sign Up</Text>
       <Box maxW="sm" borderWidth="1px" rounded="lg" p={4} my={4}>
         <Stack spacing={4}>
           <FormControl isRequired>
@@ -26,12 +64,12 @@ const Home = () => {
 
           <FormControl isRequired>
             <FormLabel htmlFor="email">Email</FormLabel>
-            <Input type="email" id="email" />
+            <Input id="email" type="email" />
           </FormControl>
 
           <FormControl isRequired>
             <FormLabel htmlFor="password">Password</FormLabel>
-            <Input type="password" id="password" />
+            <Input id="password" type="password" />
           </FormControl>
 
           <FormControl>
@@ -40,7 +78,7 @@ const Home = () => {
               <InputLeftElement
                 children={<Icon name="phone" color="gray.300" />}
               />
-              <Input type="tel" id="phone" placeholder="Phone number" />
+              <Input id="phone" type="tel" placeholder="Phone number" />
             </InputGroup>
             <FormErrorMessage>Invalid phone.</FormErrorMessage>
           </FormControl>
