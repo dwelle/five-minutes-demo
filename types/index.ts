@@ -4,6 +4,7 @@ import { option } from 'io-ts-types/lib/option';
 import isEmail from 'validator/lib/isEmail';
 import isMobilePhone from 'validator/lib/isMobilePhone';
 import { some } from 'fp-ts/lib/Option';
+import { fold } from 'fp-ts/lib/Either';
 
 // io-ts is a trojan; come for the codec, stay for the Either
 // https://twitter.com/GiulioCanti/status/1197459999276056576
@@ -72,7 +73,7 @@ import { some } from 'fp-ts/lib/Option';
 // The best thing is, with functional programming, we can compose all things
 // infinitely without source code rot, because pure functions do not rot.
 // Period. That's why functional programming is so awesome. Code does not rot.
-// Let's start with a Sign Up form example.
+// Let's start with things we need for sign up form.
 
 // All forms use strings and strings has to be trimmed.
 // We all know that ' some@email.com  ' in database would be really bad.
@@ -80,9 +81,9 @@ import { some } from 'fp-ts/lib/Option';
 // We don't know and we can't know, because classical type system can't tell us.
 // Haskell approach is to tell via types explicitly where we can expect already
 // trimmed string and where we have to trim. Basically, we validate only
-// external values. Inside the aplication, we use branded type (Haskel newtype),
-// so the code is both perfectly readable and safe. Let's start with TrimmedString
-// io-ts type.
+// values from IO boundary (HTTP, HTML forms, file system, database, ...)
+// Inside the aplication, we use branded type (Haskel newtype), so the code is
+// both perfectly readable and safe.
 
 // TrimmedString
 interface TrimmedStringBrand {
@@ -97,10 +98,20 @@ const TrimmedString = t.brand(
 );
 type TrimmedString = t.TypeOf<typeof TrimmedString>;
 
-// either left
-// console.log(TrimmedString.decode(' '));
-// either right
-// console.log(TrimmedString.decode(''));
+// Take a look how compiler protects us. We can't assign a wrong value.
+// Type '"a "' is not assignable to type 'Branded<string, TrimmedStringBrand>'.
+// const a: TrimmedString = 'a '
+
+// We have to use decode which returns Either. Note chaining via fold.
+// In functional programming, we chain all the time:
+// pipe(
+//   TrimmedString.decode('a '),
+//   fold(onLeft, onRight)
+// )
+
+// What if we don't like unknown type in decode? How we can extract "output" type,
+// a string in this case? With another helper type:
+type TrimmedStringOutput = t.OutputOf<typeof TrimmedString>;
 
 // When a value comes out of our app, it's unknown. Let's decode it with pipe and fold:
 // import { fold } from 'fp-ts/lib/Either';
@@ -119,42 +130,23 @@ type TrimmedString = t.TypeOf<typeof TrimmedString>;
 //   ),
 // );
 
-// Inside our application, we prefer creating TrimmedString from string type,
-// because it's a refinement from string type to TrimmedString type.
-// But we can not just assign it:
-// Type '"Foo"' is not assignable to type 'Branded<string, TrimmedStringBrand>'.
-// const text: TrimmedString = 'Foo'; // Or 'Foo  '.
-// It's a good thing. That's how TypeScript compiler protects us.
-// Note TrimmedString still can be used just a regular string:
+// We validate only external values. Inside application, we use branded types:
 // const toUpperCase = (foo: TrimmedString) => foo.toUpperCase();
-// So, how to create TrimmedString with types? Via smart constructor pattern.
-// It's takes a string, and returns Option none or some.
-// import { Option, fromEither } from 'fp-ts/lib/Option';
-// console.log(toTrimmedString('sd ' or 'sd'))
-// {_tag: "None"}
-// {_tag: "Some", value: "sd"}
-// const toTrimmedString = (value: string): Option<TrimmedString> =>
-//   fromEither(TrimmedString.decode(value));
+// Note TrimmedString still can be used as a regular string.
 
 // OK, we have TrimmedString, so how to create non empty trimmed string?
 // Let's start with NonEmptyString. Fortunately, such codec already exists.
 // import { NonEmptyString } from 'io-ts-types/lib/NonEmptyString';
-// import { right } from 'fp-ts/lib/Either'
-// assert.deepStrictEqual(NonEmptyString.decode('a'), right('a'))
 // To create NonEmptyTrimmedString, we compose TrimmedString and NonEmptyString.
 
 // NonEmptyTrimmedString
-// // Either left
-// console.log(NonEmptyTrimmedString.decode(''));
-// console.log(NonEmptyTrimmedString.decode(' '));
-// console.log(NonEmptyTrimmedString.decode(' a'));
-// // Either right
-// console.log(NonEmptyTrimmedString.decode('a'));
 const NonEmptyTrimmedString = t.intersection([TrimmedString, NonEmptyString]);
 type NonEmptyTrimmedString = t.TypeOf<typeof NonEmptyTrimmedString>;
 
 // Note we did not export anything yet. That's because TrimmedString, NonEmptyString,
 // and NonEmptyTrimmedString are just helper types. Let's go to domain types.
+
+// Domain types.
 
 // String50
 interface String50Brand {
@@ -214,8 +206,7 @@ const Phone = t.brand(
 );
 export type Phone = t.TypeOf<typeof Phone>;
 
-// OK, we have all custom types we need.
-// Now we can create SignUpForm type.
+// OK, we have all custom types we need. Now we can create SignUpForm type.
 // Functional programming is all about composition.
 
 export const SignUpForm = t.type({
