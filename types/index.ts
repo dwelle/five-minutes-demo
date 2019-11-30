@@ -10,11 +10,8 @@ import { some } from 'fp-ts/lib/Option';
 
 // The best way how to explain functional programming is with examples.
 // We will start with io-ts, a runtime type system for IO decoding/encoding
-// for TypeScript. It's build on top of fp-ts. We will use it for Sign Up form.
-// There are a lot of things to type and validate in any application, and for
-// external values (forms, REST API, etc), we have to deal with unknown values.
-// That's what io-ts is for.
-
+// for TypeScript. It's built on top of fp-ts. We will use it for Sign Up form.
+//
 // For example, that's how we can define runtime User type:
 // const User = t.type({
 //   userId: t.number,
@@ -50,7 +47,6 @@ import { some } from 'fp-ts/lib/Option';
 // Convention dictates that Left is used for failure and Right is used for success.
 
 // In functional programming, we don't use either directly. We pipe all the things!
-// Pipe is for composition all the things.
 // TODO: Better snippet.
 // pipe(
 //   User.decode(...),
@@ -64,8 +60,8 @@ import { some } from 'fp-ts/lib/Option';
 // 1) Option type
 // Instead of null / undefined, we use fp-ts Option type.
 // Option is Monad, a wrapped value with some helpers, to express not existing thing.
-// Helpers? Imagine Promise.all, but for not null/undefined values instead of promises.
-// Yes, Promise (and Option) is one of many monads.
+// Helpers? Imagine Promise.all, but for null/undefined values instead of promises.
+// Promise (and Option) is one of many monads.
 
 // 2) Branded type, which is even more wonderfull.
 // We can have type safe non empty string or email string. No kidding.
@@ -81,12 +77,12 @@ import { some } from 'fp-ts/lib/Option';
 // All forms use strings and strings has to be trimmed.
 // We all know that ' some@email.com  ' in database would be really bad.
 // But where we should trim? In UI? Before saving to database? Everywhere?
-// We don't know and we can't know, because classical type system can't tell us!
-// Haskell approach is to tell via types explicitly where we can expect already trimmed
-// string and where we have to trim, because string comes from out of our app.
-// Fortunatelly, we can have Haskell-like approach in TypeScript as well.
-// Branded type (Haskel newtype) with smart constructor (another Haskell pattern)
-// to the rescue. Let's define TrimmedString type with io-ts.
+// We don't know and we can't know, because classical type system can't tell us.
+// Haskell approach is to tell via types explicitly where we can expect already
+// trimmed string and where we have to trim. Basically, we validate only
+// external values. Inside the aplication, we use branded type (Haskel newtype),
+// so the code is both perfectly readable and safe. Let's start with TrimmedString
+// io-ts type.
 
 // TrimmedString
 interface TrimmedStringBrand {
@@ -131,7 +127,7 @@ type TrimmedString = t.TypeOf<typeof TrimmedString>;
 // It's a good thing. That's how TypeScript compiler protects us.
 // Note TrimmedString still can be used just a regular string:
 // const toUpperCase = (foo: TrimmedString) => foo.toUpperCase();
-// So, how to create TrimmedString properly? Via smart constructor pattern.
+// So, how to create TrimmedString with types? Via smart constructor pattern.
 // It's takes a string, and returns Option none or some.
 // import { Option, fromEither } from 'fp-ts/lib/Option';
 // console.log(toTrimmedString('sd ' or 'sd'))
@@ -219,8 +215,8 @@ const Phone = t.brand(
 export type Phone = t.TypeOf<typeof Phone>;
 
 // OK, we have all custom types we need.
-// Now we can create perfect SignUpForm type.
-// Functional programming is all about functions composition.
+// Now we can create SignUpForm type.
+// Functional programming is all about composition.
 
 export const SignUpForm = t.type({
   company: String50,
