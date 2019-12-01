@@ -204,16 +204,21 @@ const Phone = t.brand(
 );
 export type Phone = t.TypeOf<typeof Phone>;
 
-// OK, we have all custom types we need. Now we can create SignUpForm type.
-// Functional programming is all about composition.
+// OK, we have all custom types we need. Now we can create SignUpForm type
+// by composing all that types. Functional programming is all about composition.
+// "All about?" Yes. The right composition.
 
 // SignUpForm
 export const SignUpForm = t.type({
   company: String50,
   email: Email,
   password: Password,
-  // See how to use option instead of Elvis (?) operator.
+  // Option replaces null/undefined so we don't have to think what should we use.
+  // It's functional progamming pattern and fp-ts provides us a lot of helpers.
   phone: option(Phone),
+  sendNewsletter: t.boolean,
+  // Sure we can compose complex types as well:
+  // user: User
 });
 export type SignUpForm = t.TypeOf<typeof SignUpForm>;
 
