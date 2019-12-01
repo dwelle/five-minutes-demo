@@ -11,23 +11,31 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/core';
-import { none } from 'fp-ts/lib/Option';
-import React, { useState } from 'react';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { SignUpFormOutput } from '../types';
+import React from 'react';
+import { SignUpForm } from '../types';
 
-const initialState: SignUpFormOutput = {
-  company: '',
-  email: '',
-  password: '',
-  phone: none,
-};
+/**
+ * Do we need a special form validation library? Think about it. A "form" can contain
+ * anything. HTML inputs, custom components, Hooks, whatever. The same for validation.
+ * We have to be able to validate all the business rules an application has.
+ * The same for error messages. The possibilities are endless. But how to do it?
+ * From a functional programming view, we should just compose functions.
+ * But which functions? As Scott Wlaschin said:
+ * "I believe that solutions emerge from the judicious study of discernible reality."
+ * So all we need is the right reusable primitives, io-ts is one of them.
+ * With io-ts, we define TypeScript types which can be evaluated at the runtime.
+ */
+
+// const initialState: SignUpFormOutput = {
+//   company: '',
+//   email: '',
+//   password: '',
+//   phone: none,
+//   sendNewsletter: false,
+// };
 
 const Home = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const formState = useState(initialState);
-  // TODO: useForm
-  // const [] = useForm(formState)
+  console.log(SignUpForm.props);
 
   return (
     <Box m={8}>
