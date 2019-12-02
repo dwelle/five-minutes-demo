@@ -11,9 +11,11 @@ import { String50, Password, Email } from '../types';
 // In functional programming, we compose functions.
 // But which functions? As Scott Wlaschin said:
 // "I believe that solutions emerge from the judicious study of discernible reality."
-// So what we need is the right reusable primitives.
-// io-ts is one of them, the rest are React components and hooks.
-// That's all.
+// So what we need is the right reusable primitives and io-ts is one of them.
+// The rest are React components and hooks. Design emerges from life.
+
+const TextInputField = t.union([String50, Email, Password]);
+const CheckboxField = t.boolean;
 
 interface TextInputProps {
   value: string;
@@ -25,9 +27,9 @@ interface CheckboxProps {
   isChecked: boolean;
 }
 
-type Field<T> = T extends String50 | Email | Password
+type Field<T> = T extends t.TypeOf<typeof TextInputField>
   ? TextInputProps
-  : T extends t.BooleanType
+  : T extends t.TypeOf<typeof CheckboxField>
   ? CheckboxProps
   : unknown;
 
@@ -39,9 +41,8 @@ export const useForm = <P extends t.Props>(
 ): {
   fields: Fields<t.TypeOfProps<typeof codec.props>>;
 } => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [state, setState] = useState(initialState);
-  // eslint-disable-next-line no-console
-  console.log(state, setState);
   return {
     fields: {} as any,
   };

@@ -149,7 +149,7 @@ type NonEmptyTrimmedString = t.TypeOf<typeof NonEmptyTrimmedString>;
 // Note we did not export anything yet. That's because TrimmedString, NonEmptyString,
 // and NonEmptyTrimmedString are just helper types. Let's go to domain types.
 
-// Domain types.
+// Domain types. Note we export both const and type.
 
 // String50
 
@@ -188,7 +188,7 @@ interface EmailBrand {
   readonly Email: unique symbol;
 }
 
-const Email = t.brand(
+export const Email = t.brand(
   NonEmptyTrimmedString,
   (s): s is t.Branded<NonEmptyTrimmedString, EmailBrand> => isEmail(s),
   'Email',
@@ -202,7 +202,7 @@ interface PasswordBrand {
   readonly Password: unique symbol;
 }
 
-const Password = t.brand(
+export const Password = t.brand(
   NonEmptyTrimmedString,
   (s): s is t.Branded<NonEmptyTrimmedString, PasswordBrand> => s.length > 5,
   'Password',
@@ -216,7 +216,7 @@ interface PhoneBrand {
   readonly Phone: unique symbol;
 }
 
-const Phone = t.brand(
+export const Phone = t.brand(
   NonEmptyTrimmedString,
   (s): s is t.Branded<NonEmptyTrimmedString, PhoneBrand> => isMobilePhone(s),
   'Phone',
