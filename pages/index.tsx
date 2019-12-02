@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Checkbox,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -10,20 +11,18 @@ import {
   InputLeftElement,
   Stack,
   Text,
-  Checkbox,
 } from '@chakra-ui/core';
+// import { none } from 'fp-ts/lib/Option';
 import React from 'react';
-import { SignUpForm } from '../types';
-import { none } from 'fp-ts/lib/Option';
 import { useForm } from '../hooks/useForm';
+import { SignUpForm } from '../types';
 
 const Home = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const foo = useForm(SignUpForm, {
+  const { fields } = useForm(SignUpForm, {
     company: '',
     email: '',
     password: '',
-    phone: none,
+    // phone: none,
     sendNewsletter: false,
   });
 
@@ -34,20 +33,17 @@ const Home = () => {
         <Stack spacing={4}>
           <FormControl isRequired>
             <FormLabel htmlFor="company">Company</FormLabel>
-            <Input
-              // {...fields.company}
-              id="company"
-            />
+            <Input id="company" {...fields.company} />
           </FormControl>
 
           <FormControl isRequired>
             <FormLabel htmlFor="email">Email</FormLabel>
-            <Input id="email" type="email" />
+            <Input id="email" type="email" {...fields.email} />
           </FormControl>
 
           <FormControl isRequired>
             <FormLabel htmlFor="password">Password</FormLabel>
-            <Input id="password" type="password" />
+            <Input id="password" type="password" {...fields.password} />
           </FormControl>
 
           <FormControl>

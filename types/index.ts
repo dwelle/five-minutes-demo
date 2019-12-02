@@ -1,6 +1,6 @@
 import * as t from 'io-ts';
 import { NonEmptyString } from 'io-ts-types/lib/NonEmptyString';
-import { option } from 'io-ts-types/lib/option';
+// import { option } from 'io-ts-types/lib/option';
 import isEmail from 'validator/lib/isEmail';
 import isMobilePhone from 'validator/lib/isMobilePhone';
 
@@ -84,9 +84,11 @@ import isMobilePhone from 'validator/lib/isMobilePhone';
 // both perfectly readable and safe.
 
 // TrimmedString
+
 interface TrimmedStringBrand {
   readonly TrimmedString: unique symbol;
 }
+
 const TrimmedString = t.brand(
   t.string,
   (s): s is t.Branded<string, TrimmedStringBrand> =>
@@ -94,6 +96,7 @@ const TrimmedString = t.brand(
     s.length < 10000 && s.trim().length === s.length,
   'TrimmedString',
 );
+
 type TrimmedString = t.TypeOf<typeof TrimmedString>;
 
 // Take a look how compiler protects us. We can't assign a wrong value.
@@ -138,7 +141,9 @@ type TrimmedStringOutput = t.OutputOf<typeof TrimmedString>;
 // To create NonEmptyTrimmedString, we compose TrimmedString and NonEmptyString.
 
 // NonEmptyTrimmedString
+
 const NonEmptyTrimmedString = t.intersection([TrimmedString, NonEmptyString]);
+
 type NonEmptyTrimmedString = t.TypeOf<typeof NonEmptyTrimmedString>;
 
 // Note we did not export anything yet. That's because TrimmedString, NonEmptyString,
@@ -147,82 +152,97 @@ type NonEmptyTrimmedString = t.TypeOf<typeof NonEmptyTrimmedString>;
 // Domain types.
 
 // String50
+
 interface String50Brand {
   readonly String50: unique symbol;
 }
+
 export const String50 = t.brand(
   NonEmptyTrimmedString,
   (s): s is t.Branded<NonEmptyTrimmedString, String50Brand> => s.length < 50,
   'String50',
 );
+
 export type String50 = t.TypeOf<typeof String50>;
 
 // String800
+
 interface String800Brand {
   readonly String800: unique symbol;
 }
+
 export const String800 = t.brand(
   NonEmptyTrimmedString,
   (s): s is t.Branded<NonEmptyTrimmedString, String800Brand> => s.length < 800,
   'String800',
 );
+
 export type String800 = t.TypeOf<typeof String800>;
 
 // OK, we have String50 and String800 types. But for SignUpForm,
 // we also need Email, Password, and Option<Phone> types.
 
-// Email.
+// Email
+
 interface EmailBrand {
   readonly Email: unique symbol;
 }
+
 const Email = t.brand(
   NonEmptyTrimmedString,
   (s): s is t.Branded<NonEmptyTrimmedString, EmailBrand> => isEmail(s),
   'Email',
 );
+
 export type Email = t.TypeOf<typeof Email>;
 
-// Password.
+// Password
+
 interface PasswordBrand {
   readonly Password: unique symbol;
 }
+
 const Password = t.brand(
   NonEmptyTrimmedString,
   (s): s is t.Branded<NonEmptyTrimmedString, PasswordBrand> => s.length > 5,
   'Password',
 );
+
 export type Password = t.TypeOf<typeof Password>;
 
-// Phone.
+// Phone
+
 interface PhoneBrand {
   readonly Phone: unique symbol;
 }
+
 const Phone = t.brand(
   NonEmptyTrimmedString,
   (s): s is t.Branded<NonEmptyTrimmedString, PhoneBrand> => isMobilePhone(s),
   'Phone',
 );
+
 export type Phone = t.TypeOf<typeof Phone>;
 
-// OK, we have all custom types we need. Now we can create SignUpForm type
-// by composing all that types. Functional programming is all about composition.
-// "All about?" Yes. The right composition.
+// OK, we have all custom types we need, so we can create SignUpForm type.
 
 // SignUpForm
+
 export const SignUpForm = t.type({
   company: String50,
   email: Email,
   password: Password,
   // Option replaces null/undefined so we don't have to think what should we use.
   // It's functional progamming pattern and fp-ts provides us a lot of helpers.
-  phone: option(Phone),
+  // phone: option(Phone),
   sendNewsletter: t.boolean,
   // Sure we can compose complex types as well:
   // user: User
 });
+
 export type SignUpForm = t.TypeOf<typeof SignUpForm>;
 
-// Great, we can validate a form values:
+// Great, we can validate:
 // console.log(
 //   SignUpForm.decode({
 //     company: 'asdfasdfasdf',
@@ -231,7 +251,3 @@ export type SignUpForm = t.TypeOf<typeof SignUpForm>;
 //     phone: some('775326683'),
 //   }),
 // );
-
-// But wait, how to get a type for form initial values? Our form fields know
-// nothing about branded types. Do we have to write it? No.
-export type SignUpFormOutput = t.OutputOf<typeof SignUpForm>;
