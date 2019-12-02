@@ -17,10 +17,17 @@ module.exports = {
     },
   },
   rules: {
+    // Not needed.
     '@typescript-eslint/explicit-function-return-type': 'off',
+    // Buggy.
+    '@typescript-eslint/no-empty-interface': 'off',
+    // Any as placeholder is OK.
     '@typescript-eslint/no-explicit-any': 'off',
+    // No console in production.
     'no-console': 'error',
+    // TODO: Retest.
     'react/no-children-prop': 'off',
+    // Because it's important.
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'error',
   },
