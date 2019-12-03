@@ -6,10 +6,12 @@ class MyApp extends App {
   render() {
     const { Component, pageProps } = this.props;
     return (
-      <ThemeProvider>
-        <CSSReset />
-        <Component {...pageProps} />
-      </ThemeProvider>
+      <React.StrictMode>
+        <ThemeProvider>
+          <CSSReset />
+          <Component {...pageProps} />
+        </ThemeProvider>
+      </React.StrictMode>
     );
   }
 }
