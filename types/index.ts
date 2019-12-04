@@ -199,7 +199,6 @@ export const Phone = t.brand(
 export type Phone = t.TypeOf<typeof Phone>;
 
 // We have all types we need so we can compose SignUpForm type.
-
 export const SignUpForm = t.type({
   company: String50,
   email: Email,

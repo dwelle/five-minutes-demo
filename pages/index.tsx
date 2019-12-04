@@ -18,6 +18,7 @@ import { useForm } from '../hooks/useForm';
 import { SignUpForm } from '../types';
 
 const Home = () => {
+  // Everything is 100% typed by SignUpForm.
   const form = useForm(SignUpForm, {
     company: '',
     email: '',
@@ -25,13 +26,11 @@ const Home = () => {
     // phone: none,
     sendNewsletter: false,
   });
-  // eslint-disable-next-line no-console
-  console.log(form.state);
 
   const handleSignUpClick = useCallback(() => {
     // TODO: pipe with sync async code, TE.fromEither, TE.chain etc.
     // pipe(validate(), , reset)
-    form.reset();
+    form.validate();
   }, [form]);
 
   return (
@@ -44,12 +43,12 @@ const Home = () => {
             <Input id="company" {...form.fields.company.props} />
           </FormControl>
 
-          <FormControl isRequired isInvalid={form.fields.company.isInvalid}>
+          <FormControl isRequired isInvalid={form.fields.email.isInvalid}>
             <FormLabel htmlFor="email">Email</FormLabel>
             <Input id="email" type="email" {...form.fields.email.props} />
           </FormControl>
 
-          <FormControl isRequired isInvalid={form.fields.company.isInvalid}>
+          <FormControl isRequired isInvalid={form.fields.password.isInvalid}>
             <FormLabel htmlFor="password">Password</FormLabel>
             <Input
               id="password"

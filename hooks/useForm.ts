@@ -1,3 +1,7 @@
+import { fold } from 'fp-ts/lib/Either';
+import * as IO from 'fp-ts/lib/IO';
+import { pipe } from 'fp-ts/lib/pipeable';
+import * as t from 'io-ts';
 import {
   ChangeEvent,
   RefObject,
@@ -6,8 +10,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import * as IO from 'fp-ts/lib/IO';
-import * as t from 'io-ts';
 import { Email, Password, String50 } from '../types';
 
 // How the ideal form validation library should be designed?
@@ -55,6 +57,16 @@ type Fields<T> = {
   };
 };
 
+// Ideally, this should be union of all codecs names.
+// https://github.com/gcanti/io-ts/issues/392
+type ErrorType = string;
+
+type InvalidFields<T> = Partial<
+  {
+    [K in keyof T]: ErrorType;
+  }
+>;
+
 type Refs<P extends t.Props> = {
   [K in keyof P]: RefObject<any>;
 };
@@ -64,9 +76,10 @@ export const useForm = <P extends t.Props>(
   initialState: t.OutputOf<t.TypeC<P>>,
 ): {
   fields: Fields<t.TypeOfProps<P>>;
-  reset: IO.IO<void>;
   state: t.OutputOf<t.TypeC<P>>;
-  validate: IO.IO<void>;
+  // https://gcanti.github.io/fp-ts/modules/IO.ts.html
+  reset: IO.IO<void>;
+  validate: IO.IO<ReturnType<t.TypeC<P>['decode']>>;
 } => {
   const initialStateRef = useRef(initialState);
   const [state, setState] = useState(initialState);
@@ -79,13 +92,16 @@ export const useForm = <P extends t.Props>(
       {} as Refs<P>,
     ),
   );
+  const [invalidFields, setInvalidFields] = useState<
+    InvalidFields<t.TypeOfProps<P>>
+  >({});
 
   // Note we are creating callbacks (onChange etc.) on any state change which also
   // updates fields with unchanged value. Believe or not, it's OK. Forms are small and
   // big forms should be splitted to smaller forms anyway. Sure, we can micro-optimize
   // via refs or wrapper component like many other form libraries, but I believe it's
   // unnecessary for almost all cases. React is fast enough.
-  // There is also another reason for not micro-optimizing. React concurrent mode:
+  // There is also another reason for not micro-optimizing. React concurrent mode.
   // "the safest solution right now is to always invalidate the callback"
   // https://reactjs.org/docs/hooks-faq.html#how-to-read-an-often-changing-value-from-usecallback
   const fields = useMemo(() => {
@@ -116,14 +132,31 @@ export const useForm = <P extends t.Props>(
     return Object.keys(codec.props).reduce((acc, key) => {
       const type = codec.props[key];
       const props = createProps(key, type);
-      const isInvalid = false;
+      const isInvalid = key in invalidFields;
       return { ...acc, [key]: { props, isInvalid } };
     }, {} as Fields<t.TypeOfProps<P>>);
-  }, [codec.props, state]);
+  }, [codec.props, invalidFields, state]);
+
+  const onFail = useCallback((errors: t.Errors) => {
+    const invalidFields = errors.reduce((acc, error) => {
+      // t.ValidationError is weird but manageable.
+      // First is some object, second is key, last is the first error.
+      const key = error.context[1].key;
+      const name = error.context[error.context.length - 1].type.name;
+      return { ...acc, [key]: name };
+    }, {});
+    setInvalidFields(invalidFields);
+  }, []);
+
+  const onSuccess = useCallback(() => {
+    setInvalidFields({});
+  }, []);
 
   const validate = useCallback(() => {
-    //
-  }, []);
+    const result = codec.decode(state);
+    pipe(result, fold(onFail, onSuccess));
+    return result;
+  }, [codec, onFail, onSuccess, state]);
 
   const reset = useCallback(() => {
     setState(initialStateRef.current);
