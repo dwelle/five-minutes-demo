@@ -15,7 +15,7 @@
     "test": "yarn lint && yarn tsc"
   },
   "dependencies": {
-    "@chakra-ui/core": "^0.4.1",
+    "@chakra-ui/core": "^0.5.0",
     "@emotion/core": "^10.0.22",
     "@emotion/styled": "^10.0.23",
     "emotion-theming": "^10.0.19",
