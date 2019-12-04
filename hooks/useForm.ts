@@ -20,8 +20,8 @@ import { String50, Password, Email } from '../types';
 // "I believe that solutions emerge from the judicious study of discernible reality."
 // So what we need is the right reusable primitives. io-ts is one of them.
 // The rest are React components and hooks. The design emerges from the life.
-// Just compose functions.
-// I believe this code is simple enough to be copy-pasted, but sure it can be a lib.
+// Just compose functions. I believe this code is simple enough to be copy-pasted,
+// but sure it can be a lib.
 
 // Group text input based types.
 const TextInputField = t.union([String50, Email, Password]);
@@ -89,28 +89,26 @@ export const useForm = <P extends t.Props>(
   // https://reactjs.org/docs/hooks-faq.html#how-to-read-an-often-changing-value-from-usecallback
   // TODO: Remove any and leverage Props<T>.
   const fields = useMemo<any>(() => {
-    const createProps = (key: string, type: t.Mixed) => {
-      if ((TextInputField.types as t.Mixed[]).includes(type)) {
-        const props: TextInputProps = {
-          value: state[key],
-          onChange({ target }) {
-            setState({ ...state, [key]: target.value });
-          },
-          ref: refs.current[key],
-        };
-        return props;
-      }
-      if (type === CheckboxField) {
-        const props: CheckboxProps = {
-          isChecked: state[key],
-          onChange({ target }) {
-            setState({ ...state, [key]: target.checked });
-          },
-          ref: refs.current[key],
-        };
-        return props;
-      }
+    const createTextInputProps = (key: string): TextInputProps => ({
+      value: state[key],
+      onChange({ target }) {
+        setState({ ...state, [key]: target.value });
+      },
+      ref: refs.current[key],
+    });
 
+    const createCheckboxProps = (key: string): CheckboxProps => ({
+      isChecked: state[key],
+      onChange({ target }) {
+        setState({ ...state, [key]: target.checked });
+      },
+      ref: refs.current[key],
+    });
+
+    const createProps = (key: string, type: t.Mixed) => {
+      if ((TextInputField.types as t.Mixed[]).includes(type))
+        return createTextInputProps(key);
+      if (type === CheckboxField) return createCheckboxProps(key);
       // TODO: Implement unknown.
       return {};
     };
@@ -124,12 +122,12 @@ export const useForm = <P extends t.Props>(
   }, [codec.props, state]);
 
   const validate = useCallback(() => {
-    //
+    // console.log('f');
   }, []);
 
   const reset = useCallback(() => {
-    //
-  }, []);
+    setState(initialState);
+  }, [initialState]);
 
   return { fields, state, validate, reset };
 };
