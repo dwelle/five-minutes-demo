@@ -4,6 +4,21 @@
 
 Explain typed functional programming in TypeScript in five minutes.
 
+## Features
+
+- Functional programming
+- Domain-driven design (DDD)
+- Option and branded types
+- Runtime validations.
+- pipe, Either
+- client/server
+- Powerfull validation
+- React strict mode
+
+## Getting Started
+
+TODO:
+
 ## Usage
 
 ```ts
