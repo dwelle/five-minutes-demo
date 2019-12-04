@@ -1,14 +1,14 @@
 import {
-  useState,
   ChangeEvent,
   RefObject,
   useCallback,
-  useRef,
   useMemo,
+  useRef,
+  useState,
 } from 'react';
-import * as t from 'io-ts';
 import * as IO from 'fp-ts/lib/IO';
-import { String50, Password, Email } from '../types';
+import * as t from 'io-ts';
+import { Email, Password, String50 } from '../types';
 
 // How the ideal form validation library should be designed?
 // Think about it. A "form" can contain anything.
@@ -27,9 +27,9 @@ import { String50, Password, Email } from '../types';
 const TextInputField = t.union([String50, Email, Password]);
 // Define text input props for them.
 interface TextInputProps {
-  value: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   ref: RefObject<HTMLInputElement>;
+  value: string;
 }
 
 // Just Checkbox.
@@ -49,8 +49,8 @@ type Props<T> = T extends t.TypeOf<typeof TextInputField>
 
 type Fields<T> = {
   [K in keyof T]: {
-    props: Props<T[K]>;
     isInvalid: boolean;
+    props: Props<T[K]>;
     // TODO: errors
   };
 };
@@ -64,13 +64,14 @@ export const useForm = <P extends t.Props>(
   initialState: t.OutputOf<t.TypeC<P>>,
 ): {
   fields: Fields<t.TypeOfProps<P>>;
+  reset: IO.IO<void>;
   state: t.OutputOf<t.TypeC<P>>;
   validate: IO.IO<void>;
-  reset: IO.IO<void>;
 } => {
+  const initialStateRef = useRef(initialState);
   const [state, setState] = useState(initialState);
   // Creating refs is very cheap so we don't have to create them lazily.
-  const refs = useRef<Refs<P>>(
+  const refsRef = useRef<Refs<P>>(
     Object.keys(codec.props).reduce(
       // This does not break rules of hooks as long as a codec is always the same.
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -87,14 +88,13 @@ export const useForm = <P extends t.Props>(
   // There is also another reason for not micro-optimizing. React concurrent mode:
   // "the safest solution right now is to always invalidate the callback"
   // https://reactjs.org/docs/hooks-faq.html#how-to-read-an-often-changing-value-from-usecallback
-  // TODO: Remove any and leverage Props<T>.
-  const fields = useMemo<any>(() => {
+  const fields = useMemo(() => {
     const createTextInputProps = (key: string): TextInputProps => ({
       value: state[key],
       onChange({ target }) {
         setState({ ...state, [key]: target.value });
       },
-      ref: refs.current[key],
+      ref: refsRef.current[key],
     });
 
     const createCheckboxProps = (key: string): CheckboxProps => ({
@@ -102,7 +102,7 @@ export const useForm = <P extends t.Props>(
       onChange({ target }) {
         setState({ ...state, [key]: target.checked });
       },
-      ref: refs.current[key],
+      ref: refsRef.current[key],
     });
 
     const createProps = (key: string, type: t.Mixed) => {
@@ -118,16 +118,21 @@ export const useForm = <P extends t.Props>(
       const props = createProps(key, type);
       const isInvalid = false;
       return { ...acc, [key]: { props, isInvalid } };
-    }, {});
+    }, {} as Fields<t.TypeOfProps<P>>);
   }, [codec.props, state]);
 
   const validate = useCallback(() => {
-    // console.log('f');
+    //
   }, []);
 
   const reset = useCallback(() => {
-    setState(initialState);
-  }, [initialState]);
+    setState(initialStateRef.current);
+  }, []);
 
-  return { fields, state, validate, reset };
+  return useMemo(() => ({ fields, reset, state, validate }), [
+    fields,
+    reset,
+    state,
+    validate,
+  ]);
 };
