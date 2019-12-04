@@ -52,7 +52,7 @@ import isMobilePhone from 'validator/lib/isMobilePhone';
 //   fold(onFail, onSuccess)
 // )
 
-// With io-ts and Either, we can type and validate anything and everything.
+// With io-ts and Either, we can type and validate everything.
 // But before a validation, we need to define some model to be validated.
 // We will use two super usefull abstractions: Option and branded types.
 
@@ -60,7 +60,7 @@ import isMobilePhone from 'validator/lib/isMobilePhone';
 // Instead of null / undefined, we use fp-ts Option type.
 // Option is Monad, a wrapped value with some helpers, to express not existing thing.
 // Helpers? Imagine Promise.all, but for null/undefined values instead of promises.
-// Promise (and Option) is one of many monads.
+// Option (and Promise) is one of many monads.
 
 // 2) Branded type, which is even more wonderfull.
 // We can have type safe non empty string or email string. No kidding.
@@ -70,7 +70,7 @@ import isMobilePhone from 'validator/lib/isMobilePhone';
 
 // The best thing is, with functional programming, we can compose all things
 // infinitely without source code rot, because pure functions do not rot.
-// Period. That's why functional programming is so awesome. Code does not rot.
+// That's why functional programming is so awesome. Code does not rot so easily.
 // Let's start with things we need for sign up form.
 
 // All forms use strings and strings has to be trimmed.
@@ -80,8 +80,8 @@ import isMobilePhone from 'validator/lib/isMobilePhone';
 // Haskell approach is to tell via types explicitly where we can expect already
 // trimmed string and where we have to trim. Basically, we validate only
 // values from IO boundary (HTTP, HTML forms, file system, database, ...)
-// Inside the aplication, we use branded type (Haskel newtype), so the code is
-// both perfectly readable and safe.
+// Inside the aplication, we use branded type (similar to Haskel newtype), so
+// the code is both perfectly readable and safe.
 
 // TrimmedString
 
@@ -110,8 +110,8 @@ type TrimmedString = t.TypeOf<typeof TrimmedString>;
 //   fold(onLeft, onRight)
 // )
 
-// What if we don't like unknown type in decode? How we can extract "output" type,
-// a string in this case? With another helper type:
+// What if we don't like unknown type in decode? We can extract "output" type,
+// a string in this case, with another helper type:
 type TrimmedStringOutput = t.OutputOf<typeof TrimmedString>;
 
 // When a value comes out of our app, it's unknown. Let's decode it with pipe and fold:
@@ -149,7 +149,8 @@ type NonEmptyTrimmedString = t.TypeOf<typeof NonEmptyTrimmedString>;
 // Note we did not export anything yet. That's because TrimmedString, NonEmptyString,
 // and NonEmptyTrimmedString are just helper types. Let's go to domain types.
 
-// Domain types. Note we export both const and type.
+// Domain types.
+// Note we export both const and type under the same name. TypeScript is awesome.
 
 // String50
 
@@ -225,6 +226,7 @@ export const Phone = t.brand(
 export type Phone = t.TypeOf<typeof Phone>;
 
 // OK, we have all custom types we need, so we can create SignUpForm type.
+// Functional composition FTW.
 
 // SignUpForm
 
@@ -251,3 +253,4 @@ export type SignUpForm = t.TypeOf<typeof SignUpForm>;
 //     phone: some('775326683'),
 //   }),
 // );
+// For full-fledged validation, check signup form with useForm hook.
