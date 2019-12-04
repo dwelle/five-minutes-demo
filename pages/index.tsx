@@ -13,37 +13,50 @@ import {
   Text,
 } from '@chakra-ui/core';
 // import { none } from 'fp-ts/lib/Option';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useForm } from '../hooks/useForm';
 import { SignUpForm } from '../types';
 
 const Home = () => {
-  const { fields } = useForm(SignUpForm, {
+  const form = useForm(SignUpForm, {
     company: '',
     email: '',
     password: '',
     // phone: none,
     sendNewsletter: false,
   });
+  // Note React.StrictMode intentionally double-invoking some methods.
+  // eslint-disable-next-line no-console
+  console.log(form.state);
+
+  const handleSignUpClick = useCallback(() => {
+    // TODO: pipe with sync async code, TE.fromEither, TE.chain etc.
+    // pipe(validate(), , reset)
+    form.reset();
+  }, [form]);
 
   return (
     <Box m={8}>
       <Text fontSize="xl">Sign Up</Text>
       <Box maxW="sm" borderWidth="1px" rounded="lg" p={4} my={4}>
         <Stack spacing={4}>
-          <FormControl isRequired>
+          <FormControl isRequired isInvalid={form.fields.company.isInvalid}>
             <FormLabel htmlFor="company">Company</FormLabel>
-            <Input id="company" {...fields.company} />
+            <Input id="company" {...form.fields.company.props} />
           </FormControl>
 
-          <FormControl isRequired>
+          <FormControl isRequired isInvalid={form.fields.company.isInvalid}>
             <FormLabel htmlFor="email">Email</FormLabel>
-            <Input id="email" type="email" {...fields.email} />
+            <Input id="email" type="email" {...form.fields.email.props} />
           </FormControl>
 
-          <FormControl isRequired>
+          <FormControl isRequired isInvalid={form.fields.company.isInvalid}>
             <FormLabel htmlFor="password">Password</FormLabel>
-            <Input id="password" type="password" {...fields.password} />
+            <Input
+              id="password"
+              type="password"
+              {...form.fields.password.props}
+            />
           </FormControl>
 
           <FormControl>
@@ -58,10 +71,12 @@ const Home = () => {
           </FormControl>
 
           <FormControl>
-            <Checkbox>Midnight hours available</Checkbox>
+            <Checkbox {...form.fields.sendNewsletter.props}>
+              Yes, send me a newsletter
+            </Checkbox>
           </FormControl>
 
-          <Button mt={4} variantColor="green">
+          <Button onClick={handleSignUpClick} mt={4} variantColor="green">
             Sign Up
           </Button>
         </Stack>
