@@ -25,7 +25,6 @@ const Home = () => {
     // phone: none,
     sendNewsletter: false,
   });
-  // Note React.StrictMode intentionally double-invoking some methods.
   // eslint-disable-next-line no-console
   console.log(form.state);
 
