@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/typescript-fun/five-minutes-demo.svg?style=svg)](https://circleci.com/gh/typescript-fun/five-minutes-demo)
 
-Explain typed functional programming in TypeScript in five minutes.
+Typed functional programming in TypeScript in five minutes.
 
 ## Features
 
