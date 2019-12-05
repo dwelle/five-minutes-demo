@@ -4,6 +4,7 @@ import { pipe } from 'fp-ts/lib/pipeable';
 import * as t from 'io-ts';
 import {
   ChangeEvent,
+  KeyboardEvent,
   RefObject,
   useCallback,
   useMemo,
@@ -30,6 +31,7 @@ const TextInputField = t.union([String50, Email, Password]);
 // Define text input props for them.
 interface TextInputProps {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onKeyPress: (event: KeyboardEvent<HTMLInputElement>) => void;
   ref: RefObject<HTMLInputElement>;
   value: string;
 }
@@ -92,50 +94,10 @@ export const useForm = <P extends t.Props>(
       {} as Refs<P>,
     ),
   );
+
   const [invalidFields, setInvalidFields] = useState<
     InvalidFields<t.TypeOfProps<P>>
   >({});
-
-  // Note we are creating callbacks (onChange etc.) on any state change which also
-  // updates fields with unchanged value. Believe or not, it's OK. Forms are small and
-  // big forms should be splitted to smaller forms anyway. Sure, we can micro-optimize
-  // via refs or wrapper component like many other form libraries, but I believe it's
-  // unnecessary for almost all cases. React is fast enough.
-  // There is also another reason for not micro-optimizing. React concurrent mode.
-  // "the safest solution right now is to always invalidate the callback"
-  // https://reactjs.org/docs/hooks-faq.html#how-to-read-an-often-changing-value-from-usecallback
-  const fields = useMemo(() => {
-    const createTextInputProps = (key: string): TextInputProps => ({
-      value: state[key],
-      onChange({ target }) {
-        setState({ ...state, [key]: target.value });
-      },
-      ref: refsRef.current[key],
-    });
-
-    const createCheckboxProps = (key: string): CheckboxProps => ({
-      isChecked: state[key],
-      onChange({ target }) {
-        setState({ ...state, [key]: target.checked });
-      },
-      ref: refsRef.current[key],
-    });
-
-    const createProps = (key: string, type: t.Mixed) => {
-      if ((TextInputField.types as t.Mixed[]).includes(type))
-        return createTextInputProps(key);
-      if (type === CheckboxField) return createCheckboxProps(key);
-      // TODO: Implement unknown.
-      return {};
-    };
-
-    return Object.keys(codec.props).reduce((acc, key) => {
-      const type = codec.props[key];
-      const props = createProps(key, type);
-      const isInvalid = key in invalidFields;
-      return { ...acc, [key]: { props, isInvalid } };
-    }, {} as Fields<t.TypeOfProps<P>>);
-  }, [codec.props, invalidFields, state]);
 
   const onFail = useCallback((errors: t.Errors) => {
     const invalidFields = errors.reduce((acc, error) => {
@@ -161,6 +123,50 @@ export const useForm = <P extends t.Props>(
   const reset = useCallback(() => {
     setState(initialStateRef.current);
   }, []);
+
+  // Note we are creating callbacks (onChange etc.) on any state change which also
+  // updates fields with unchanged value. Believe or not, it's OK. Forms are small and
+  // big forms should be splitted to smaller forms anyway. Sure, we can micro-optimize
+  // via refs or wrapper component like many other form libraries, but I believe it's
+  // unnecessary for almost all cases. React is fast enough.
+  // There is also another reason for not micro-optimizing. React concurrent mode.
+  // "the safest solution right now is to always invalidate the callback"
+  // https://reactjs.org/docs/hooks-faq.html#how-to-read-an-often-changing-value-from-usecallback
+  const fields = useMemo(() => {
+    const createTextInputProps = (key: string): TextInputProps => ({
+      value: state[key],
+      onChange({ target }) {
+        setState({ ...state, [key]: target.value });
+      },
+      onKeyPress(event) {
+        // Simulate submit on enter. It could be configurable.
+        if (event.key === 'Enter') validate();
+      },
+      ref: refsRef.current[key],
+    });
+
+    const createCheckboxProps = (key: string): CheckboxProps => ({
+      isChecked: state[key],
+      onChange({ target }) {
+        setState({ ...state, [key]: target.checked });
+      },
+      ref: refsRef.current[key],
+    });
+
+    const createProps = (key: string, type: t.Mixed) => {
+      if ((TextInputField.types as t.Mixed[]).includes(type))
+        return createTextInputProps(key);
+      if (type === CheckboxField) return createCheckboxProps(key);
+      return {};
+    };
+
+    return Object.keys(codec.props).reduce((acc, key) => {
+      const type = codec.props[key];
+      const props = createProps(key, type);
+      const isInvalid = key in invalidFields;
+      return { ...acc, [key]: { props, isInvalid } };
+    }, {} as Fields<t.TypeOfProps<P>>);
+  }, [codec.props, invalidFields, state, validate]);
 
   return useMemo(() => ({ fields, reset, state, validate }), [
     fields,
