@@ -1,8 +1,8 @@
-import { fold } from 'fp-ts/lib/Either';
 import { Refinement } from 'fp-ts/lib/function';
-import * as IO from 'fp-ts/lib/IO';
 import { pipe } from 'fp-ts/lib/pipeable';
 import * as t from 'io-ts';
+import * as E from 'fp-ts/lib/Either';
+import * as IO from 'fp-ts/lib/IO';
 import {
   ChangeEvent,
   KeyboardEvent,
@@ -154,7 +154,7 @@ export const useForm = <P extends t.Props>(
 
   const validate = useCallback(() => {
     const result = codec.decode(state);
-    pipe(result, fold(onFail, onSuccess));
+    pipe(result, E.fold(onFail, onSuccess));
     return result;
   }, [codec, onFail, onSuccess, state]);
 

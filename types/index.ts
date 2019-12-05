@@ -110,12 +110,12 @@ type TrimmedString = t.TypeOf<typeof TrimmedString>;
 type TrimmedStringOutput = t.OutputOf<typeof TrimmedString>;
 
 // When a value comes out of our app, it's unknown. Let's decode it with pipe and fold:
-// import { fold } from 'fp-ts/lib/Either';
+// import * as E from 'fp-ts/lib/Either';
 // import { pipe } from 'fp-ts/lib/pipeable';
 // pipe(
 //   // Try null, '', 'foo ', whatever.
 //   TrimmedString.decode(' adfg'),
-//   fold(
+//   E.fold(
 //     e => {
 //       // TODO: Use reporter.
 //       console.log(`Failed codec: ${e[0].context[0].type.name}`);
