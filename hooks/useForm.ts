@@ -1,4 +1,5 @@
 import { fold } from 'fp-ts/lib/Either';
+import { Refinement } from 'fp-ts/lib/function';
 import * as IO from 'fp-ts/lib/IO';
 import { pipe } from 'fp-ts/lib/pipeable';
 import * as t from 'io-ts';
@@ -12,7 +13,6 @@ import {
   useState,
 } from 'react';
 import { Email, Password, String50 } from '../types';
-import { Refinement } from 'fp-ts/lib/function';
 
 // How the ideal form validation library should be designed?
 // Think about it. A "form" can contain anything.
@@ -56,7 +56,7 @@ type Fields<T> = {
   [K in keyof T]: {
     isInvalid: boolean;
     props: Props<T[K]>;
-    // TODO: errors
+    error: string;
   };
 };
 
@@ -94,6 +94,20 @@ export const useForm = <P extends t.Props>(
       (acc, key) => ({ ...acc, [key]: useRef() }),
       {} as Refs<P>,
     ),
+  );
+
+  // Messages should be read from React context react-intl or similar.
+  // Type shoul be infered from codecs.
+  const errorMessages = useMemo<any>(
+    () => ({
+      NonEmptyString: 'Field can not be empty.',
+      TrimmedString: 'Please remove trailing whitespaces.',
+      Email: 'Email is not valid.',
+      Password: 'Password is too short.',
+      String50: 'Max 50 characters.',
+      String800: 'Max 800 characters.',
+    }),
+    [],
   );
 
   const [invalidFields, setInvalidFields] = useState<
@@ -187,9 +201,10 @@ export const useForm = <P extends t.Props>(
       const type = codec.props[key];
       const props = createProps(key, type);
       const isInvalid = key in invalidFields;
-      return { ...acc, [key]: { props, isInvalid } };
+      const error = errorMessages[invalidFields[key]] || 'fok';
+      return { ...acc, [key]: { props, isInvalid, error } };
     }, {} as Fields<t.TypeOfProps<P>>);
-  }, [codec.props, invalidFields, state, validate]);
+  }, [codec.props, errorMessages, invalidFields, state, validate]);
 
   return useMemo(() => ({ fields, reset, state, validate }), [
     fields,

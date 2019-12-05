@@ -41,11 +41,13 @@ const Home = () => {
           <FormControl isRequired isInvalid={form.fields.company.isInvalid}>
             <FormLabel htmlFor="company">Company</FormLabel>
             <Input id="company" {...form.fields.company.props} />
+            <FormErrorMessage>{form.fields.company.error}</FormErrorMessage>
           </FormControl>
 
           <FormControl isRequired isInvalid={form.fields.email.isInvalid}>
             <FormLabel htmlFor="email">Email</FormLabel>
             <Input id="email" type="email" {...form.fields.email.props} />
+            <FormErrorMessage>{form.fields.email.error}</FormErrorMessage>
           </FormControl>
 
           <FormControl isRequired isInvalid={form.fields.password.isInvalid}>
@@ -55,6 +57,7 @@ const Home = () => {
               type="password"
               {...form.fields.password.props}
             />
+            <FormErrorMessage>{form.fields.password.error}</FormErrorMessage>
           </FormControl>
 
           <FormControl>
