@@ -15,7 +15,6 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/core';
-// import { none } from 'fp-ts/lib/Option';
 import { useForm } from '../hooks/useForm';
 import { SignUpForm } from '../types';
 
@@ -30,8 +29,6 @@ const Home = () => {
   });
 
   const handleSignUpClick = useCallback(() => {
-    // TODO: pipe with sync async code, TE.fromEither, TE.chain etc.
-    // pipe(validate(), , reset)
     form.validate();
   }, [form]);
 
@@ -74,12 +71,7 @@ const Home = () => {
                 <InputLeftElement
                   children={<Icon name="phone" color="gray.300" />}
                 />
-                <Input
-                  id="phone"
-                  type="tel"
-                  // placeholder="xxx-xxx-xxxx"
-                  {...form.fields.phone.props}
-                />
+                <Input id="phone" type="tel" {...form.fields.phone.props} />
               </InputGroup>
               <FormErrorMessage>{form.fields.phone.error}</FormErrorMessage>
             </FormControl>

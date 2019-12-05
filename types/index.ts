@@ -1,6 +1,5 @@
 import * as t from 'io-ts';
 import { NonEmptyString } from 'io-ts-types/lib/NonEmptyString';
-// import { option } from 'io-ts-types/lib/option';
 import isEmail from 'validator/lib/isEmail';
 import isMobilePhone from 'validator/lib/isMobilePhone';
 
@@ -203,20 +202,19 @@ export const SignUpForm = t.type({
   company: String50,
   email: Email,
   password: Password,
-  // Option is better null/undefined in functional programming.
-  // TODO: Make phone optional.
   phone: Phone,
   sendNewsletter: t.boolean,
 });
 export type SignUpForm = t.TypeOf<typeof SignUpForm>;
 
-// Great, we can validate:
+// // Great, we can validate via decode:
 // console.log(
 //   SignUpForm.decode({
 //     company: 'asdfasdfasdf',
 //     email: 'a@s.com',
 //     password: 'sdfgsdfg',
-//     phone: some('775326683'),
+//     phone: '775326683',
+//     sendNewsletter: true,
 //   }),
 // );
 // For full-fledged validation, check signup form with useForm hook.

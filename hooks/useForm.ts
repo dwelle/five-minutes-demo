@@ -97,7 +97,7 @@ export const useForm = <P extends t.Props>(
   );
 
   // Messages should be read from React context react-intl or similar.
-  // Type shoul be infered from codecs.
+  // TODO: Type should be infered from codecs.
   const errorMessages = useMemo<any>(
     () => ({
       Email: 'Email is not valid.',
