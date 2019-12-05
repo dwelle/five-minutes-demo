@@ -203,9 +203,9 @@ export const SignUpForm = t.type({
   company: String50,
   email: Email,
   password: Password,
-  // Option replaces null/undefined so we don't have to think what should we use.
-  // It's functional progamming pattern and fp-ts provides a lot of helpers.
-  // phone: option(Phone),
+  // Option is better null/undefined in functional programming.
+  // TODO: Make phone optional.
+  phone: Phone,
   sendNewsletter: t.boolean,
 });
 export type SignUpForm = t.TypeOf<typeof SignUpForm>;

@@ -12,7 +12,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Email, Password, String50 } from '../types';
+import { Email, Password, String50, Phone } from '../types';
 
 // How the ideal form validation library should be designed?
 // Think about it. A "form" can contain anything.
@@ -28,7 +28,7 @@ import { Email, Password, String50 } from '../types';
 // I believe this code is simple enough to be copy-pasted, but sure it can be a library.
 
 // Group text input based types.
-const TextInputField = t.union([String50, Email, Password]);
+const TextInputField = t.union([String50, Email, Password, Phone]);
 // Define text input props for them.
 interface TextInputProps {
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -100,12 +100,13 @@ export const useForm = <P extends t.Props>(
   // Type shoul be infered from codecs.
   const errorMessages = useMemo<any>(
     () => ({
-      NonEmptyString: 'Field can not be empty.',
-      TrimmedString: 'Please remove trailing whitespaces.',
       Email: 'Email is not valid.',
+      NonEmptyString: 'Field can not be empty.',
       Password: 'Password is too short.',
+      Phone: 'Invalid phone number.',
       String50: 'Max 50 characters.',
       String800: 'Max 800 characters.',
+      TrimmedString: 'Please remove trailing whitespaces.',
     }),
     [],
   );

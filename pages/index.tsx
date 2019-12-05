@@ -25,7 +25,7 @@ const Home = () => {
     company: '',
     email: '',
     password: '',
-    // phone: none,
+    phone: '',
     sendNewsletter: false,
   });
 
@@ -68,15 +68,20 @@ const Home = () => {
               <FormErrorMessage>{form.fields.password.error}</FormErrorMessage>
             </FormControl>
 
-            <FormControl>
+            <FormControl isRequired isInvalid={form.fields.phone.isInvalid}>
               <FormLabel htmlFor="phone">Phone</FormLabel>
               <InputGroup>
                 <InputLeftElement
                   children={<Icon name="phone" color="gray.300" />}
                 />
-                <Input id="phone" type="tel" placeholder="Phone number" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  // placeholder="xxx-xxx-xxxx"
+                  {...form.fields.phone.props}
+                />
               </InputGroup>
-              <FormErrorMessage>Invalid phone.</FormErrorMessage>
+              <FormErrorMessage>{form.fields.phone.error}</FormErrorMessage>
             </FormControl>
 
             <FormControl>
