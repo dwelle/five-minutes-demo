@@ -12,6 +12,7 @@ import {
   useState,
 } from 'react';
 import { Email, Password, String50 } from '../types';
+import { Refinement } from 'fp-ts/lib/function';
 
 // How the ideal form validation library should be designed?
 // Think about it. A "form" can contain anything.
@@ -23,8 +24,8 @@ import { Email, Password, String50 } from '../types';
 // "I believe that solutions emerge from the judicious study of discernible reality."
 // So what we need is the right reusable primitives. io-ts is one of them.
 // The rest are React components and hooks. The design emerges from the life.
-// Just compose functions. I believe this code is simple enough to be copy-pasted,
-// but sure it can be a lib.
+// Just compose functions.
+// I believe this code is simple enough to be copy-pasted, but sure it can be a library.
 
 // Group text input based types.
 const TextInputField = t.union([String50, Email, Password]);
@@ -99,16 +100,38 @@ export const useForm = <P extends t.Props>(
     InvalidFields<t.TypeOfProps<P>>
   >({});
 
-  const onFail = useCallback((errors: t.Errors) => {
-    const invalidFields = errors.reduce((acc, error) => {
-      // t.ValidationError is weird but manageable.
-      // First is some object, second is key, last is the first error.
-      const key = error.context[1].key;
-      const name = error.context[error.context.length - 1].type.name;
-      return { ...acc, [key]: name };
-    }, {});
-    setInvalidFields(invalidFields);
+  const focusFirstInvalidField = useCallback((invalidKeys: string[]) => {
+    const isDOMElement: Refinement<any, Element> = (a): a is Element =>
+      'nodeType' in a && a.nodeType === Node.ELEMENT_NODE;
+
+    const firstFieldInDOM = invalidKeys
+      .map(key => refsRef.current[key])
+      .sort(({ current: a }, { current: b }) => {
+        if (!isDOMElement(a) || !isDOMElement(b)) return 0;
+        // Sort by document position, because that's how key tab navigation works.
+        const position = a.compareDocumentPosition(b);
+        if (position & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
+        if (position & Node.DOCUMENT_POSITION_PRECEDING) return 1;
+        return 0;
+      })[0].current;
+    if (firstFieldInDOM && typeof firstFieldInDOM.focus === 'function')
+      firstFieldInDOM.focus();
   }, []);
+
+  const onFail = useCallback(
+    (errors: t.Errors) => {
+      const invalidFields = errors.reduce((acc, error) => {
+        // t.ValidationError is weird but manageable.
+        // First is some object, second is key, last is the first error.
+        const key = error.context[1].key;
+        const name = error.context[error.context.length - 1].type.name;
+        return { ...acc, [key]: name };
+      }, {});
+      setInvalidFields(invalidFields);
+      focusFirstInvalidField(Object.keys(invalidFields));
+    },
+    [focusFirstInvalidField],
+  );
 
   const onSuccess = useCallback(() => {
     setInvalidFields({});
