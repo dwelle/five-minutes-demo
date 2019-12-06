@@ -6,17 +6,17 @@ import isMobilePhone from 'validator/lib/isMobilePhone';
 // io-ts is a trojan; come for the codec, stay for the Either
 // https://twitter.com/GiulioCanti/status/1197459999276056576
 
-// The best way how to explain functional programming is with examples.
+// The best way how to explain functional programming is with an example.
 // We will start with io-ts, a runtime type system for IO decoding/encoding
-// for TypeScript. It's built on top of fp-ts. We will use it for Sign Up form.
+// for TypeScript. It's built on top of fp-ts. We will use it for the sign-up form.
 //
-// For example, that's how we can define runtime User type:
+// For example, this is how we can define a runtime User type:
 // const User = t.type({
 //   userId: t.number,
 //   name: t.string
 // })
 
-// And that's how we can extract its TypeScript type:
+// And this is how we can extract its TypeScript type:
 // type User = t.TypeOf<typeof User>
 // Which is the same as:
 // type User = {
@@ -24,12 +24,12 @@ import isMobilePhone from 'validator/lib/isMobilePhone';
 //   name: string
 // }
 
-// We can use User to decode any unknown value in runtime safely:
+// We can use User to decode any unknown value in runtime, safely:
 // const either = User.decode(anything)
 
 // What is Either?
 // The Either type returned by decode is defined in fp-ts, a library containing
-// implementations of common algebraic types in TypeScript.
+// implementation of common algebraic types in TypeScript.
 
 // The Either type represents a value of one of two possible types (a disjoint union).
 // An instance of Either is either an instance of Left or Right:
@@ -44,7 +44,7 @@ import isMobilePhone from 'validator/lib/isMobilePhone';
 //     };
 // Convention dictates that Left is used for failure and Right is used for success.
 
-// In functional programming, we don't use either directly. We pipe all the things!
+// In functional programming, we don't use Either directly. We pipe all the things!
 // TODO: Better snippet.
 // pipe(
 //   User.decode(...),
@@ -52,34 +52,34 @@ import isMobilePhone from 'validator/lib/isMobilePhone';
 // )
 
 // With io-ts and Either, we can type and validate everything.
-// But before a validation, we need to define some model to be validated.
-// We will use two super usefull abstractions: Option and branded types.
+// But before validation, we need to define some model to be validated.
+// We will use two super useful abstractions: Option and branded types.
 
 // 1) Option type
 // Instead of null / undefined, we use fp-ts Option type.
-// Option is Monad, a wrapped value with some helpers, to express not existing thing.
+// Option is a Monad - a wrapped value with some helpers, expressing a non-existing thing.
 // Helpers? Imagine Promise.all, but for null/undefined values instead of promises.
 // Option (and Promise) is one of many monads.
 
-// 2) Branded type, which is even more wonderfull.
-// We can have type safe non empty string or email string. No kidding.
-// You, as developer, can define by type system solely, that function foo can
-// accept only non empty string, for example. Traditionally, this is possible
-// only with throwing exceptions (no way) or complex value objects (unnecessary).
+// 2) Branded type, which is even more wonderful.
+// We can have type-safe non empty string or email string. No kidding.
+// Ffor example, you can define by a type system alone, that function foo can
+// accept only non empty string. Traditionally, this is possible
+// only by throwing exceptions (no way) or with complex value objects (unnecessary).
 
-// The best thing is, with functional programming, we can compose all things
-// infinitely without source code rot, because pure functions do not rot.
-// That's why functional programming is so awesome. Code does not rot so easily.
-// Let's start with things we need for sign up form.
+// The best thing about functional programming is we can compose all the things
+// ad infinitum without source code rot, because pure functions do not rot.
+// That's why functional programming is so awesome. Code does not rot that easily.
+// Let's start with things we need for a sign-up form.
 
-// All forms use strings and strings has to be trimmed.
-// We all know that ' some@email.com  ' in database would be really bad.
-// But where we should trim? In UI? Before saving to database? Everywhere?
+// All forms use strings, and strings have to be trimmed.
+// We all know that storing ' some@email.com  ' in a database would be really bad.
+// But where should we trim? On the client? Before saving to the database? Everywhere?
 // We don't know and we can't know, because classical type system can't tell us.
-// Haskell approach is to tell via types explicitly where we can expect already
-// trimmed string and where we have to trim. Basically, we validate only
-// values from IO boundary (HTTP, HTML forms, file system, database, ...)
-// Inside the aplication, we use branded type (similar to Haskel newtype), so
+// Haskell approach is to explicitly indicate via types where we can expect already
+// trimmed string, and where we have to trim. Basically, we only validate
+// values from an IO boundary (HTTP, HTML forms, file system, database, ...).
+// Inside the application, we use a branded type (similar to Haskel newtype), so
 // the code is both perfectly readable and safe.
 
 interface TrimmedStringBrand {
@@ -94,11 +94,11 @@ const TrimmedString = t.brand(
 );
 type TrimmedString = t.TypeOf<typeof TrimmedString>;
 
-// Take a look how compiler protects us. We can't assign a wrong value.
+// Take a look at how the compiler protects us. We can't assign a wrong value.
 // Type '"a "' is not assignable to type 'Branded<string, TrimmedStringBrand>'.
 // const a: TrimmedString = 'a '
 
-// We have to use decode which returns Either. Note chaining via fold.
+// We have to use decode, which returns Either. Note the chaining via fold.
 // In functional programming, we chain all the time:
 // pipe(
 //   TrimmedString.decode('a '),
@@ -126,11 +126,11 @@ type TrimmedStringOutput = t.OutputOf<typeof TrimmedString>;
 //   ),
 // );
 
-// We validate only external values. Inside application, we use branded types:
+// We validate only external values. Inside the application, we use branded types:
 // const toUpperCase = (foo: TrimmedString) => foo.toUpperCase();
 // Note TrimmedString still can be used as a regular string.
 
-// OK, we have TrimmedString, so how to create non empty trimmed string?
+// OK, we have TrimmedString, so how to create a non empty trimmed string?
 // Let's start with NonEmptyString. Fortunately, such codec already exists.
 // import { NonEmptyString } from 'io-ts-types/lib/NonEmptyString';
 // To create NonEmptyTrimmedString, we compose TrimmedString and NonEmptyString.
@@ -138,11 +138,11 @@ type TrimmedStringOutput = t.OutputOf<typeof TrimmedString>;
 const NonEmptyTrimmedString = t.intersection([TrimmedString, NonEmptyString]);
 type NonEmptyTrimmedString = t.TypeOf<typeof NonEmptyTrimmedString>;
 
-// Note we did not export anything yet. That's because TrimmedString, NonEmptyString,
+// Note that we did not export anything yet. That's because TrimmedString, NonEmptyString,
 // and NonEmptyTrimmedString are just helper types. Let's go to domain types.
 
 // Domain types.
-// Note we export both const and type under the same name. TypeScript is awesome.
+// Note that we export both const and type under the same name. TypeScript is awesome.
 
 interface String50Brand {
   readonly String50: unique symbol;
@@ -197,7 +197,7 @@ export const Phone = t.brand(
 );
 export type Phone = t.TypeOf<typeof Phone>;
 
-// We have all types we need so we can compose SignUpForm type.
+// We have all the types we need, so now we can compose the SignUpForm type.
 export const SignUpForm = t.type({
   company: String50,
   email: Email,
