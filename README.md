@@ -6,20 +6,19 @@ Typed functional programming in TypeScript in five minutes.
 
 ## Features
 
-- Functional programming
-- Domain-driven design (DDD)
-- Option and branded types
-- Runtime validations.
-- pipe, Either
-- client/server
-- Powerfull validation
-- React strict mode
+- Domain-driven design with io-ts.
+- pipe, Option, Either, TaskEither etc.
+- Browser/server validation.
 
 ## Getting Started
 
-TODO:
+- clone repo
+- `yarn` to install
+- `yarn dev` to run
 
-## Usage
+## Tips
+
+### Imports
 
 ```ts
 import { pipe } from 'fp-ts/lib/pipeable';
