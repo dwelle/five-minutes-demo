@@ -6,7 +6,8 @@ Typed functional programming in TypeScript in five minutes.
 
 ## Features
 
-- Domain-driven design with io-ts.
+- [fp-ts](https://github.com/gcanti/fp-ts/)
+- Domain-driven design with [io-ts](https://github.com/gcanti/io-ts/).
 - pipe, Option, Either, TaskEither etc.
 - Browser/server validation.
 
